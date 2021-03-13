@@ -3,6 +3,7 @@ const app = express();
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const mongoose = require('mongoose');
+const { userRouter } = require('./routes');
 
 const server = async() => {
     try {
@@ -19,9 +20,12 @@ const server = async() => {
         // mongoose.set("debug", true);
         console.log('MongoDB connected...')
 
+        app.use(bodyParser.urlencoded({ extended: true }));
         app.use(bodyParser.json())
         app.use(cookieParser())
         app.use(express.json())
+
+        app.use('/users', userRouter)
 
         app.listen(PORT, async () => {
             try {

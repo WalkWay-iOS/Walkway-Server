@@ -18,7 +18,7 @@ const server = async() => {
             }, (err) => {
             if(err) console.log({ err })
         });
-        // mongoose.set("debug", true);
+        mongoose.set("debug", true);
         console.log('MongoDB connected...')
 
         app.use(cors())

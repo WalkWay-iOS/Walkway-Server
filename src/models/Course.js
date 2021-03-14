@@ -39,12 +39,16 @@ const courseSchema = mongoose.Schema({
         type: Number,
         default: 0
     },
+    bookmarkCount: {
+        type: Number,
+        default: 0
+    },
     hashtag: [ hashtagSchema ],
     position: [ Number ],
     placeName: [ String ]
 }, { timestamps: true })
 
-courseSchema.index({ createdAt: -1 });
+courseSchema.index({ rateAverage: -1, usesCount: -1, createdAt: -1 });
 
 const Course = mongoose.model('Course', courseSchema);
 module.exports = { Course }

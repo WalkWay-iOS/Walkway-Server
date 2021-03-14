@@ -8,6 +8,7 @@ const { auth } = require("../middleware/auth");
 //             User
 //=================================
 
+/* 인증 */
 userRouter.get("/auth", auth, (req, res) => {
     res.status(200).json({
         _id: req.user._id,
@@ -22,6 +23,7 @@ userRouter.get("/auth", auth, (req, res) => {
     });
 });
 
+/* 회원가입 */
 userRouter.post("/register", (req, res) => {
     const user = new User(req.body);
     if (!user.email || !user.name || !user.password || !user.id) {
@@ -52,6 +54,7 @@ userRouter.post("/register", (req, res) => {
     });
 });
 
+/* 로그인 */
 userRouter.post("/login", (req, res) => {
     const user = new User(req.body);
     if (!user.password || !user.id) {
@@ -104,6 +107,7 @@ userRouter.post("/login", (req, res) => {
     });
 });
 
+/* 아이디 비밀번호 찾기 */
 userRouter.post('/findUser', async (req, res) => {
     const user = new User(req.body);
     if (!user.id) {
@@ -129,6 +133,7 @@ userRouter.post('/findUser', async (req, res) => {
     });
 })
 
+/* 로그아웃 */
 userRouter.get("/logout", auth, (req, res) => {
     User.findOneAndUpdate({ _id: req.user._id }, { token: "", tokenExp: "" }, (err, doc) => {
         if (err) return res.json({  
@@ -149,6 +154,7 @@ userRouter.get("/logout", auth, (req, res) => {
     });
 });
 
+/* 유저 정보 가져오기 */
 userRouter.get('/', async (req, res) => {
     try {
         const users = await User.find({});

@@ -3,7 +3,7 @@ const app = express();
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const mongoose = require('mongoose');
-const { userRouter } = require('./routes');
+const { userRouter, homeRouter } = require('./routes');
 
 const server = async() => {
     try {
@@ -26,6 +26,7 @@ const server = async() => {
         app.use(express.json())
 
         app.use('/users', userRouter)
+        app.use('/home', homeRouter)
 
         app.listen(PORT, async () => {
             try {

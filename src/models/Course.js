@@ -33,7 +33,11 @@ const courseSchema = mongoose.Schema({
             type: String,
             maxlength: 1000
         },
-        image: String
+        image: String,
+        official: {
+            type: Number,
+            default: 0
+        }
     },
     usesCount: {
         type: Number,

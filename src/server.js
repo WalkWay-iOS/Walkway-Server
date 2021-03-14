@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const cors = require("cors");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const mongoose = require('mongoose');
@@ -20,6 +21,7 @@ const server = async() => {
         // mongoose.set("debug", true);
         console.log('MongoDB connected...')
 
+        app.use(cors())
         app.use(bodyParser.urlencoded({ extended: true }));
         app.use(bodyParser.json())
         app.use(cookieParser())

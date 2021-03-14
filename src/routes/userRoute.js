@@ -129,6 +129,26 @@ userRouter.post('/findUser', async (req, res) => {
     });
 })
 
+userRouter.get("/logout", auth, (req, res) => {
+    User.findOneAndUpdate({ _id: req.user._id }, { token: "", tokenExp: "" }, (err, doc) => {
+        if (err) return res.json({  
+            status: 500,
+            success: false,
+            message: "서버 내부 에러"
+        });
+        
+        console.log(auth.user)
+
+        res.clearCookie("w_auth")
+        res.clearCookie("w_authExp")
+        return res.status(200).json({
+            status: 200,
+            success: true,
+            message: "로그아웃 성공"
+        });
+    });
+});
+
 userRouter.get('/', async (req, res) => {
     try {
         const users = await User.find({});

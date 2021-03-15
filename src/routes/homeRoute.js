@@ -119,6 +119,50 @@ homeRouter.get('/latest', async (req, res) => {
     }
 })
 
+/* 서울 공식 코스 화면 */
+homeRouter.get('/seoulCourses', async (req, res) => {
+    try {
+        const courses = await Course.find({ official: 1 , isSeoul: true })
+
+        return res.status(200).json({
+            status: 200,
+            success: true,
+            message: "서울 공식 코스 화면 조회 성공",
+            data: {
+                course: courses
+            }
+        });
+    } catch (err) {
+        return res.status(500).json({  
+            status: 500,
+            success: false,
+            message: "서버 내부 에러"
+        })
+    }
+})
+
+/* 제주 공식 코스 화면 */
+homeRouter.get('/jejuCourses', async (req, res) => {
+    try {
+        const courses = await Course.find({ official: 1 , isSeoul: false })
+
+        return res.status(200).json({
+            status: 200,
+            success: true,
+            message: "제주 공식 코스 화면 조회 성공",
+            data: {
+                course: courses
+            }
+        });
+    } catch (err) {
+        return res.status(500).json({  
+            status: 500,
+            success: false,
+            message: "서버 내부 에러"
+        })
+    }
+})
+
 /* 팔로워 화면 */
 homeRouter.get('/:userId', async (req, res) => {
     try {
@@ -153,6 +197,31 @@ homeRouter.get('/:userId', async (req, res) => {
             success: false,
             message: "서버 내부 에러"
         });
+    }
+})
+
+/* 공식 코스로 변경(확인 해야함) */
+homeRouter.put('/change/:courseId', async (req, res) => {
+    try {
+        const { courseId } = req.params;
+        const { official } = req.body;
+
+        const course = await Course.findOneAndUpdate({ _id: courseId }, { official }, { new: true })
+
+        return res.status(200).json({
+            status: 200,
+            success: true,
+            message: "해당 코스를 공식 코스로 변경 완료",
+            data: {
+                course: course
+            }
+        });
+    } catch (err) {
+        return res.status(500).json({  
+            status: 500,
+            success: false,
+            message: "서버 내부 에러"
+        })
     }
 })
 

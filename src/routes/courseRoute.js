@@ -118,6 +118,7 @@ courseRouter.put('/change/:courseId', async (req, res) => {
 })
 
 /* 코스 세부정보 가져오기 */
+/* Comment 가져와야 함 */
 courseRouter.get('/:courseId/detail', async (req, res) => {
     try {
         const { courseId } = req.params;
@@ -130,6 +131,33 @@ courseRouter.get('/:courseId/detail', async (req, res) => {
             message: "코스 세부정보를 가져왔습니다.",
             data: {
                 course: course
+            }
+        });
+    } catch (err) {
+        return res.status(500).json({  
+            status: 500,
+            success: false,
+            message: "서버 내부 에러"
+        })
+    }
+})
+
+/* 러닝 코스 정보 전달 */
+/* hotplace model, router 생성 */
+courseRouter.get('/:courseId/running', async (req, res) => {
+    try {
+        const { courseId } = req.params;
+        const { content, position } = await Course.findById(courseId)
+
+        // position과 가까운 hotplace 찾기
+
+        return res.status(200).json({
+            status: 200,
+            success: true,
+            message: "러닝 코스 정보 전달 완료",
+            data: {
+                content: content,
+                position: position
             }
         });
     } catch (err) {

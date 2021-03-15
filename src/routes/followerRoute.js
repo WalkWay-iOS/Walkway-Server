@@ -2,13 +2,14 @@ const { Router } = require('express');
 const followerRouter = Router();
 const mongoose = require('mongoose');
 const { User, Course, Record, Follower } = require('../models');
+const { auth } = require("../middleware/auth");
 
 //=================================
 //             Follower
 //=================================
 
 /* 팔로워 화면 */
-followerRouter.get('/:userId', async (req, res) => {
+followerRouter.get('/:userId', auth, async (req, res) => {
     try {
         const { userId } = req.params
         if(!mongoose.isValidObjectId(userId)) {
@@ -19,17 +20,24 @@ followerRouter.get('/:userId', async (req, res) => {
             })
         }
 
-        const [ follower, courses, records ] = await Promise.all([
+        const [ follower, courses, records, following ] = await Promise.all([
             User.findOne({ _id: userId }),
             Course.find({ 'user._id': userId }),
-            Record.find({ 'userId': userId }).sort({ createdAt: -1 }).limit(5)
-        ])
+            Record.find({ 'userId': userId }).sort({ createdAt: -1 }).limit(5),
+            Follower.find({ 'userTo': userId, 'userFrom': req.user._id })
+        ]) 
+
+        let result = false
+        if(following.length !== 0) {
+            result = true
+        } 
 
         return res.status(200).json({
             status: 200,
             success: true,
             message: "팔로워 화면 조회 성공",
             data: {
+                isFollowing: result,
                 user: follower,
                 course: courses,
                 record: records
@@ -45,16 +53,12 @@ followerRouter.get('/:userId', async (req, res) => {
 })
 
 /* 팔로우 */
-followerRouter.post('/:userId/follow', async (req, res) => {
+followerRouter.get('/:userId/follow', auth, async (req, res) => {
     try {
         const { userId } = req.params
-        const { userFrom } = req.body
-
-        console.log(userFrom)
-
         const [ userToId, userFromId ] = await Promise.all([
             User.findById(userId, {}, {  }),
-            User.findById(userFrom, {}, {  })
+            User.findById(req.user._id, {}, {  })
         ])
         if(!userToId || !userFromId) 
                 return res.status(400).json({ 
@@ -63,7 +67,7 @@ followerRouter.post('/:userId/follow', async (req, res) => {
                     message: "존재하지 않는 유저입니다."
                  });
 
-        const follower = new Follower({ userTo: userId, userFrom: userFrom })
+        const follower = new Follower({ userTo: userId, userFrom: req.user._id })
 
         await follower.save((err, doc) => {
             if(err) return res.status(400).json({ 
@@ -93,13 +97,12 @@ followerRouter.post('/:userId/follow', async (req, res) => {
 })
 
 /* 언팔로우 */
-followerRouter.post('/:userId/unfollow', async (req, res) => {
+followerRouter.get('/:userId/unfollow', auth, async (req, res) => {
     try {
         const { userId } = req.params
-        const { userFrom } = req.body
         const [ userToId, userFromId ] = await Promise.all([
             User.findById(userId, {}, {  }),
-            User.findById(userFrom, {}, {  })
+            User.findById(req.user._id, {}, {  })
         ])
         if(!userToId || !userFromId) 
                 return res.status(400).json({ 
@@ -108,7 +111,7 @@ followerRouter.post('/:userId/unfollow', async (req, res) => {
                     message: "존재하지 않는 유저입니다."
                  });
 
-        await Follower.findOneAndDelete({ userTo: userId, userFrom: userFrom })
+        await Follower.findOneAndDelete({ userTo: userId, userFrom: req.user._id })
             .exec((err, doc) => {
                 if(err) return res.status(400).json({ 
                     status: 400,

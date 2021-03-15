@@ -9,10 +9,6 @@ const followerSchema = mongoose.Schema({
     userFrom: {
         type: Schema.Types.ObjectId,
         ref: 'User'
-    },
-    isFollowing: {
-        type: Boolean,
-        default: false
     }
 }, { timestamps: true })
 

@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const homeRouter = Router();
 const mongoose = require('mongoose');
-const { User, Course, Bookmark, Record } = require('../models');
+const { User, Course, Bookmark } = require('../models');
 
 //=================================
 //             Home
@@ -160,43 +160,6 @@ homeRouter.get('/jejuCourses', async (req, res) => {
             success: false,
             message: "서버 내부 에러"
         })
-    }
-})
-
-/* 팔로워 화면 */
-homeRouter.get('/:userId', async (req, res) => {
-    try {
-        const { userId } = req.params
-        if(!mongoose.isValidObjectId(userId)) {
-            return res.status(400).json({ 
-                status: 400,
-                success: false,
-                message: "존재하지 않는 유저입니다."
-            })
-        }
-
-        const [ follower, courses, records ] = await Promise.all([
-            User.findOne({ _id: userId }),
-            Course.find({ 'user._id': userId }),
-            Record.find({ 'userId': userId }).sort({ createdAt: -1 }).limit(5)
-        ])
-
-        return res.status(200).json({
-            status: 200,
-            success: true,
-            message: "팔로워 화면 조회 성공",
-            data: {
-                user: follower,
-                course: courses,
-                record: records
-            }
-        })
-    } catch (err) {
-        return res.status(500).json({  
-            status: 500,
-            success: false,
-            message: "서버 내부 에러"
-        });
     }
 })
 

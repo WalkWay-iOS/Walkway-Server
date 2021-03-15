@@ -23,6 +23,10 @@ const recordSchema = mongoose.Schema({
         type: Number,
         required: true
     },
+    strength: {
+        type: Number,
+        required: true
+    },
     comment: { 
         type: commentSchema,
         required: true

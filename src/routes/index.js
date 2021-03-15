@@ -2,5 +2,6 @@ module.exports = {
     ...require('./userRoute'),
     ...require('./homeRoute'),
     ...require('./followerRoute'),
-    ...require('./mypageRoute')
+    ...require('./mypageRoute'),
+    ...require('./courseRoute')
 };

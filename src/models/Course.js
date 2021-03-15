@@ -7,37 +7,42 @@ const courseSchema = mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'User'
     },
-    courseInfo: {
-        title: {
-            type: String,
-            required: true,
-            maxlength: 15
-        },
-        distance: {
-            type: Number,
-            required: true
-        },
-        time: {
-            type: String,
-            required: true
-        },
-        rateAverage: {
-            type: Number,
-            required: true
-        },
-        isSeoul: {
-            type: Boolean,
-            default: false
-        },
-        content: {
-            type: String,
-            maxlength: 1000
-        },
-        image: String,
-        official: {
-            type: Number,
-            default: 0
-        }
+    title: {
+        type: String,
+        required: true,
+        maxlength: 15
+    },
+    distance: {
+        type: Number,
+        required: true
+    },
+    time: {
+        type: String,
+        required: true
+    },
+    rateAverage: {
+        type: Number,
+        default: 0
+    },
+    strengthAverage: {
+        type: Number,
+        default: 0
+    },
+    isSeoul: {
+        type: Boolean,
+        default: false
+    },
+    content: {
+        type: String,
+        maxlength: 1000
+    },
+    image: {
+        type: String,
+        default: null
+    },
+    official: {
+        type: Number,
+        default: 0
     },
     usesCount: {
         type: Number,
@@ -48,7 +53,7 @@ const courseSchema = mongoose.Schema({
         default: 0
     },
     hashtag: [ hashtagSchema ],
-    position: [ Number ],
+    position: [ [Number, Number] ],
     placeName: [ String ]
 }, { timestamps: true })
 

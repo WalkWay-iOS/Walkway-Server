@@ -4,7 +4,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const mongoose = require('mongoose');
-const { userRouter, homeRouter, followerRouter, mypageRouter } = require('./routes');
+const { userRouter, homeRouter, followerRouter, mypageRouter, courseRouter } = require('./routes');
 
 const server = async() => {
     try {
@@ -31,6 +31,7 @@ const server = async() => {
         app.use('/home', homeRouter)
         app.use('/follower', followerRouter)
         app.use('/mypage', mypageRouter)
+        app.use('/course', courseRouter)
 
         app.listen(PORT, async () => {
             try {

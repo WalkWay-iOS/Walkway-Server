@@ -163,29 +163,4 @@ homeRouter.get('/jejuCourses', async (req, res) => {
     }
 })
 
-/* 공식 코스로 변경(확인 해야함) */
-homeRouter.put('/change/:courseId', async (req, res) => {
-    try {
-        const { courseId } = req.params;
-        const { official } = req.body;
-
-        const course = await Course.findOneAndUpdate({ _id: courseId }, { official }, { new: true })
-
-        return res.status(200).json({
-            status: 200,
-            success: true,
-            message: "해당 코스를 공식 코스로 변경 완료",
-            data: {
-                course: course
-            }
-        });
-    } catch (err) {
-        return res.status(500).json({  
-            status: 500,
-            success: false,
-            message: "서버 내부 에러"
-        })
-    }
-})
-
 module.exports = { homeRouter }

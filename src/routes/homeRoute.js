@@ -95,4 +95,28 @@ homeRouter.get('/bookmarks', async (req, res) => {
     }
 })
 
+/* 최신 코스 화면 */
+homeRouter.get('/latest', async (req, res) => {
+    try {
+        let { page=0 } = req.query;
+        page = parseInt(page);
+        const courses = await Course.find({ createdAt: -1 }).skip(page * 20).limit(20)
+
+        return res.status(200).json({
+            status: 200,
+            success: true,
+            message: "최신 코스 화면 조회 성공",
+            data: {
+                course: courses
+            }
+        });
+    } catch (err) {
+        return res.status(500).json({  
+            status: 500,
+            success: false,
+            message: "서버 내부 에러"
+        });
+    }
+})
+
 module.exports = { homeRouter }

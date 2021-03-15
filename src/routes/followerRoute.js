@@ -48,10 +48,22 @@ followerRouter.get('/:userId', async (req, res) => {
 followerRouter.post('/:userId/follow', async (req, res) => {
     try {
         const { userId } = req.params
+        const { userFrom } = req.body
 
-        // 팔로우 하는 유저랑 팔로잉 하는 유저가 존재하는 유저인지 확인하기,
+        console.log(userFrom)
 
-        const follower = new Follower({ userTo: userId, userFrom: req.body.userFrom })
+        const [ userToId, userFromId ] = await Promise.all([
+            User.findById(userId, {}, {  }),
+            User.findById(userFrom, {}, {  })
+        ])
+        if(!userToId || !userFromId) 
+                return res.status(400).json({ 
+                    status: 400,
+                    success: false,
+                    message: "존재하지 않는 유저입니다."
+                 });
+
+        const follower = new Follower({ userTo: userId, userFrom: userFrom })
 
         await follower.save((err, doc) => {
             if(err) return res.status(400).json({ 

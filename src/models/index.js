@@ -3,5 +3,7 @@ module.exports = {
     ...require('./Follower'),
     ...require('./Bookmark'),
     ...require('./Course'),
-    ...require('./Hashtag')
+    ...require('./Hashtag'),
+    ...require('./Comment'),
+    ...require('./Record')
 };

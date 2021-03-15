@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const homeRouter = Router();
 const mongoose = require('mongoose');
-const { User, Course, Bookmark } = require('../models');
+const { User, Course, Bookmark, Record } = require('../models');
 
 //=================================
 //             Home
@@ -33,7 +33,7 @@ homeRouter.get('/', async (req, res) => {
             status: 500,
             success: false,
             message: "서버 내부 에러"
-        });
+        })
     }
 })
 
@@ -62,7 +62,7 @@ homeRouter.get('/populars', async (req, res) => {
             status: 500,
             success: false,
             message: "서버 내부 에러"
-        });
+        })
     }
 })
 
@@ -73,9 +73,9 @@ homeRouter.get('/bookmarks', async (req, res) => {
         let courses;
         
         if(isBookmark === 'true') {
-            courses = await Course.find({ bookmarkCount: -1 }).limit(100)
+            courses = await Course.find({}).sort({ bookmarkCount: -1 }).limit(100)
         } else {
-            courses = await Course.find({ rateAverage: -1 }).limit(100)
+            courses = await Course.find({}).sort({ rateAverage: -1 }).limit(100)
         }
 
         return res.status(200).json({
@@ -91,7 +91,7 @@ homeRouter.get('/bookmarks', async (req, res) => {
             status: 500,
             success: false,
             message: "서버 내부 에러"
-        });
+        })
     }
 })
 
@@ -100,7 +100,7 @@ homeRouter.get('/latest', async (req, res) => {
     try {
         let { page=0 } = req.query;
         page = parseInt(page);
-        const courses = await Course.find({ createdAt: -1 }).skip(page * 20).limit(20)
+        const courses = await Course.find({}).sort({ createdAt: -1 }).skip(page * 20).limit(20)
 
         return res.status(200).json({
             status: 200,
@@ -110,6 +110,43 @@ homeRouter.get('/latest', async (req, res) => {
                 course: courses
             }
         });
+    } catch (err) {
+        return res.status(500).json({  
+            status: 500,
+            success: false,
+            message: "서버 내부 에러"
+        })
+    }
+})
+
+/* 팔로워 화면 */
+homeRouter.get('/:userId', async (req, res) => {
+    try {
+        const { userId } = req.params
+        if(!mongoose.isValidObjectId(userId)) {
+            return res.status(400).json({ 
+                status: 400,
+                success: false,
+                message: "존재하지 않는 유저입니다."
+            })
+        }
+
+        const [ follower, courses, records ] = await Promise.all([
+            User.findOne({ _id: userId }),
+            Course.find({ 'user._id': userId }),
+            Record.find({ 'userId': userId }).sort({ createdAt: -1 }).limit(5)
+        ])
+
+        return res.status(200).json({
+            status: 200,
+            success: true,
+            message: "팔로워 화면 조회 성공",
+            data: {
+                user: follower,
+                course: courses,
+                record: records
+            }
+        })
     } catch (err) {
         return res.status(500).json({  
             status: 500,

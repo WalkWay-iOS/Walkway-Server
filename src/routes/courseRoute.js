@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const courseRouter = Router();
 const mongoose = require('mongoose');
-const { User, Course, Hashtag } = require('../models');
+const { User, Course, Hashtag, Comment, Record } = require('../models');
 const { auth } = require("../middleware/auth");
 
 //=================================
@@ -158,6 +158,47 @@ courseRouter.get('/:courseId/running', async (req, res) => {
             data: {
                 content: content,
                 position: position
+            }
+        });
+    } catch (err) {
+        return res.status(500).json({  
+            status: 500,
+            success: false,
+            message: "서버 내부 에러"
+        })
+    }
+})
+
+/* 러닝 레코드 저장 */
+courseRouter.post('/:courseId/record', auth, async (req, res) => {
+    try {
+        const { courseId } = req.params
+        const { comment, strength, rate } = req.body
+
+        const userComment = new Comment({ userId: req.user._id, courseId , content: comment })
+        const record = new Record({ ...req.body, comment: userComment, userId: req.user._id, courseId})
+
+        const { strengthAverage, rateAverage, usesCount } = await Course.findById(courseId)
+        const strAve = (strengthAverage + strength) / (usesCount + 1)
+        const rateAve = (rateAverage + rate) / (usesCount + 1)
+
+        const course = await Course.findOneAndUpdate(
+            { _id: courseId },
+            { $inc: { usesCount: 1 }, strengthAverage: strAve, rateAverage: rateAve }, { new: true }
+        )
+
+        await Promise.all([
+            userComment.save(),
+            record.save()
+        ])
+
+        return res.status(200).json({
+            status: 200,
+            success: true,
+            message: "러닝 레코드 저장 완료",
+            data: {
+                record: record,
+                course: course
             }
         });
     } catch (err) {

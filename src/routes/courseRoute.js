@@ -118,19 +118,43 @@ courseRouter.put('/change/:courseId', async (req, res) => {
 })
 
 /* 코스 세부정보 가져오기 */
-/* Comment 가져와야 함 */
 courseRouter.get('/:courseId/detail', async (req, res) => {
     try {
         const { courseId } = req.params;
 
         const course = await Course.findById(courseId)
+        const comment = await Comment.find({ courseId }).sort({ createdAt: -1 }).limit(3)
 
         return res.status(200).json({
             status: 200,
             success: true,
             message: "코스 세부정보를 가져왔습니다.",
             data: {
-                course: course
+                course: course,
+                comment: comment
+            }
+        });
+    } catch (err) {
+        return res.status(500).json({  
+            status: 500,
+            success: false,
+            message: "서버 내부 에러"
+        })
+    }
+})
+
+/* 코스 후기 전체보기 */
+courseRouter.get('/:courseId/detail/comment', async (req, res) => {
+    try {
+        const { courseId } = req.params;
+        const comment = await Comment.find({ courseId }).sort({ createdAt: -1 })
+
+        return res.status(200).json({
+            status: 200,
+            success: true,
+            message: "코스 후기 전체보기 완료",
+            data: {
+                comment: comment
             }
         });
     } catch (err) {
@@ -179,8 +203,8 @@ courseRouter.post('/:courseId/record', auth, async (req, res) => {
         const record = new Record({ ...req.body, comment: userComment, userId: req.user._id, courseId})
 
         const { strengthAverage, rateAverage, usesCount } = await Course.findById(courseId)
-        const strAve = (strengthAverage + strength) / (usesCount + 1)
-        const rateAve = (rateAverage + rate) / (usesCount + 1)
+        const strAve = ((strengthAverage * usesCount) + strength) / (usesCount + 1)
+        const rateAve = ((rateAverage * usesCount) + rate) / (usesCount + 1)
 
         const course = await Course.findOneAndUpdate(
             { _id: courseId },

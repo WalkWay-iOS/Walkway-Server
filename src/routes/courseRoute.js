@@ -52,8 +52,9 @@ courseRouter.post('/create', auth, async (req, res) => {
             
         let tags = []
         for (let tag of hashtag) {
+            console.log(tag)
             const hash = await Hashtag.findOne({ 'keyword': tag.keyword })
-            console.log("hash: " + hash)
+    
             if(hash !== null) {
                 await Hashtag.updateOne(
                     { 'keyword': tag.keyword }, 
@@ -61,9 +62,8 @@ courseRouter.post('/create', auth, async (req, res) => {
                 )
                 tags.push(hash)
             } else {
-                const newHashtag = new Hashtag(tag)
+                const newHashtag = new Hashtag({ 'keyword': tag.keyword })
                 tags.push(newHashtag)
-                console.log('new: ' + newHashtag)
                 await newHashtag.save()
             }
         }
@@ -75,21 +75,28 @@ courseRouter.post('/create', auth, async (req, res) => {
         }
 
         let course = new Course({ ...req.body, user, hashtag: tags, isSeoul: result })
-        await course.save()
-
-        return res.status(200).json({
-            status: 200,
-            success: true,
-            message: "경로 생성 완료",
-            data: {
-                course: course
+        await course.save((err, doc) => {
+            if (err) {
+                console.log(err.message)
+                return res.status(400).json({ success: false, err });
             }
-        })
+            return res.status(200).json({
+                status: 200,
+                success: true,
+                message: "경로 생성 완료",
+                data: {
+                    course: course
+                }
+            })
+        });
+
+        
     } catch (err) {
         return res.status(500).json({  
             status: 500,
             success: false,
-            message: "서버 내부 에러"
+            message: "서버 내부 에러",
+            err: err.message
         });
     }
 })

@@ -174,15 +174,14 @@ courseRouter.get('/:courseId/running', async (req, res) => {
             Course.findById(courseId), Hotplace.find({})
         ])
 
-        // position과 가까운 hotplace 찾기
         let landmark = []
         const posStart = position[0]
         const posDestin = position[1]
         const posMidLong = (posStart[0] + posDestin[0]) / 2
         const posMidLati = (posStart[1] + posDestin[1]) / 2
         for(let place of hotplaces) {
-            if((place.position[0] >= posMidLong - 0.01 && place.position[0] <= posMidLong + 0.01) &&
-                (place.position[1] >= posMidLati - 0.01 && place.position[1] <= posMidLati + 0.01)) {
+            if((place.position[0] >= posMidLong - 0.024 && place.position[0] <= posMidLong + 0.024) &&
+                (place.position[1] >= posMidLati - 0.024 && place.position[1] <= posMidLati + 0.024)) {
                     landmark.push(place.name)
                 }
         }
@@ -236,6 +235,71 @@ courseRouter.post('/:courseId/record', auth, async (req, res) => {
             data: {
                 record: record,
                 course: course
+            }
+        });
+    } catch (err) {
+        return res.status(500).json({  
+            status: 500,
+            success: false,
+            message: "서버 내부 에러"
+        })
+    }
+})
+
+/* 러닝 레코드 저장 */
+courseRouter.post('/:courseId/record', auth, async (req, res) => {
+    try {
+        const { courseId } = req.params
+        const { comment, strength, rate } = req.body
+
+        const userComment = new Comment({ userId: req.user._id, courseId , content: comment })
+        const record = new Record({ ...req.body, comment: userComment, userId: req.user._id, courseId})
+
+        const { strengthAverage, rateAverage, usesCount } = await Course.findById(courseId)
+        const strAve = ((strengthAverage * usesCount) + strength) / (usesCount + 1)
+        const rateAve = ((rateAverage * usesCount) + rate) / (usesCount + 1)
+
+        const course = await Course.findOneAndUpdate(
+            { _id: courseId },
+            { $inc: { usesCount: 1 }, strengthAverage: strAve, rateAverage: rateAve }, { new: true }
+        )
+
+        await Promise.all([
+            userComment.save(),
+            record.save()
+        ])
+
+        return res.status(200).json({
+            status: 200,
+            success: true,
+            message: "러닝 레코드 저장 완료",
+            data: {
+                record: record,
+                course: course
+            }
+        });
+    } catch (err) {
+        return res.status(500).json({  
+            status: 500,
+            success: false,
+            message: "서버 내부 에러"
+        })
+    }
+})
+
+/* 핫플레이스 저장 */
+courseRouter.post('/hotplace', auth, async (req, res) => {
+    try {
+        const place = new Hotplace(req.body)
+
+        await place.save()
+
+        return res.status(200).json({
+            status: 200,
+            success: true,
+            message: "새로운 핫플레이스 생성",
+            data: {
+                hotplace: place
             }
         });
     } catch (err) {

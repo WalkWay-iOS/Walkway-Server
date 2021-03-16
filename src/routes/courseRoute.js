@@ -53,6 +53,7 @@ courseRouter.post('/create', auth, async (req, res) => {
         let tags = []
         for (let tag of hashtag) {
             const hash = await Hashtag.findOne({ 'keyword': tag.keyword })
+            console.log("hash: " + hash)
             if(hash !== null) {
                 await Hashtag.updateOne(
                     { 'keyword': tag.keyword }, 
@@ -62,6 +63,7 @@ courseRouter.post('/create', auth, async (req, res) => {
             } else {
                 const newHashtag = new Hashtag(tag)
                 tags.push(newHashtag)
+                console.log('new: ' + newHashtag)
                 await newHashtag.save()
             }
         }
@@ -246,49 +248,8 @@ courseRouter.post('/:courseId/record', auth, async (req, res) => {
     }
 })
 
-/* 러닝 레코드 저장 */
-courseRouter.post('/:courseId/record', auth, async (req, res) => {
-    try {
-        const { courseId } = req.params
-        const { comment, strength, rate } = req.body
-
-        const userComment = new Comment({ userId: req.user._id, courseId , content: comment })
-        const record = new Record({ ...req.body, comment: userComment, userId: req.user._id, courseId})
-
-        const { strengthAverage, rateAverage, usesCount } = await Course.findById(courseId)
-        const strAve = ((strengthAverage * usesCount) + strength) / (usesCount + 1)
-        const rateAve = ((rateAverage * usesCount) + rate) / (usesCount + 1)
-
-        const course = await Course.findOneAndUpdate(
-            { _id: courseId },
-            { $inc: { usesCount: 1 }, strengthAverage: strAve, rateAverage: rateAve }, { new: true }
-        )
-
-        await Promise.all([
-            userComment.save(),
-            record.save()
-        ])
-
-        return res.status(200).json({
-            status: 200,
-            success: true,
-            message: "러닝 레코드 저장 완료",
-            data: {
-                record: record,
-                course: course
-            }
-        });
-    } catch (err) {
-        return res.status(500).json({  
-            status: 500,
-            success: false,
-            message: "서버 내부 에러"
-        })
-    }
-})
-
 /* 핫플레이스 저장 */
-courseRouter.post('/hotplace', auth, async (req, res) => {
+courseRouter.post('/hotplace', async (req, res) => {
     try {
         const place = new Hotplace(req.body)
 

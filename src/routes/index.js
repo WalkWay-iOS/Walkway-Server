@@ -3,5 +3,6 @@ module.exports = {
     ...require('./homeRoute'),
     ...require('./followerRoute'),
     ...require('./mypageRoute'),
-    ...require('./courseRoute')
+    ...require('./courseRoute'),
+    ...require('./searchRoute')
 };

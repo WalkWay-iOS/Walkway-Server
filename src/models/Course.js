@@ -53,11 +53,12 @@ const courseSchema = mongoose.Schema({
         default: 0
     },
     hashtag: [ hashtagSchema ],
-    position: [ [Number, Number] ],
+    position: [ [ Number, Number ] ],
     placeName: [ String ]
 }, { timestamps: true })
 
 courseSchema.index({ rateAverage: -1, usesCount: -1, createdAt: -1 });
+courseSchema.index({ title: "text" });
 
 const Course = mongoose.model('Course', courseSchema);
 module.exports = { Course }

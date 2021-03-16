@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const homeRouter = Router();
+const homeRouter = Router({mergeParams: true});
 const mongoose = require('mongoose');
 const { User, Course, Bookmark } = require('../models');
 

@@ -5,5 +5,6 @@ module.exports = {
     ...require('./Course'),
     ...require('./Hashtag'),
     ...require('./Comment'),
-    ...require('./Record')
+    ...require('./Record'),
+    ...require('./Hotplace')
 };

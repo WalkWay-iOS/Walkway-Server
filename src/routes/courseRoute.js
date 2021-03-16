@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const courseRouter = Router();
 const mongoose = require('mongoose');
-const { User, Course, Hashtag, Comment, Record } = require('../models');
+const { User, Course, Hashtag, Comment, Record, Hotplace } = require('../models');
 const { auth } = require("../middleware/auth");
 
 //=================================
@@ -167,13 +167,25 @@ courseRouter.get('/:courseId/detail/comment', async (req, res) => {
 })
 
 /* 러닝 코스 정보 전달 */
-/* hotplace model, router 생성 */
 courseRouter.get('/:courseId/running', async (req, res) => {
     try {
         const { courseId } = req.params;
-        const { content, position } = await Course.findById(courseId)
+        const [{ position, content }, hotplaces] = await Promise.all([
+            Course.findById(courseId), Hotplace.find({})
+        ])
 
         // position과 가까운 hotplace 찾기
+        let landmark = []
+        const posStart = position[0]
+        const posDestin = position[1]
+        const posMidLong = (posStart[0] + posDestin[0]) / 2
+        const posMidLati = (posStart[1] + posDestin[1]) / 2
+        for(let place of hotplaces) {
+            if((place.position[0] >= posMidLong - 0.01 && place.position[0] <= posMidLong + 0.01) &&
+                (place.position[1] >= posMidLati - 0.01 && place.position[1] <= posMidLati + 0.01)) {
+                    landmark.push(place.name)
+                }
+        }
 
         return res.status(200).json({
             status: 200,
@@ -181,7 +193,8 @@ courseRouter.get('/:courseId/running', async (req, res) => {
             message: "러닝 코스 정보 전달 완료",
             data: {
                 content: content,
-                position: position
+                position: position,
+                landmark: landmark
             }
         });
     } catch (err) {

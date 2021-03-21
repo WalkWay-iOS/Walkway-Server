@@ -114,7 +114,10 @@ followerRouter.get('/:userId/unfollow', auth, async (req, res) => {
                     message: "존재하지 않는 유저입니다."
                  });
 
-        await Follower.findOneAndDelete({ userTo: userId, userFrom: req.user._id })
+        await Promise.all([
+            User.findOneAndUpdate({ _id: userToId }, { $inc: { followerNumber: -1 } }),
+            User.findOneAndUpdate({ _id: userFromId }, { $inc: { followingNumber: -1 } }),
+            Follower.findOneAndDelete({ userTo: userId, userFrom: req.user._id })
             .exec((err, doc) => {
                 if(err) return res.status(400).json({ 
                     status: 400,
@@ -126,7 +129,8 @@ followerRouter.get('/:userId/unfollow', auth, async (req, res) => {
                     success: true,
                     message: "언팔로우 성공"
                 })
-        })
+            })
+        ])
     } catch (err) {
         return res.status(500).json({  
             status: 500,

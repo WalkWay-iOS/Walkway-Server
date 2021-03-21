@@ -22,7 +22,7 @@ followerRouter.get('/:userId', auth, async (req, res) => {
 
         const [ follower, courses, records, following ] = await Promise.all([
             User.findOne({ _id: userId }),
-            Course.find({ 'user._id': userId }),
+            Course.find({ 'user': userId }),
             Record.find({ 'userId': userId }).sort({ createdAt: -1 }).limit(5),
             Follower.find({ 'userTo': userId, 'userFrom': req.user._id })
         ]) 
@@ -68,25 +68,28 @@ followerRouter.get('/:userId/follow', auth, async (req, res) => {
                  });
 
         const follower = new Follower({ userTo: userId, userFrom: req.user._id })
-
-        await follower.save((err, doc) => {
-            if(err) return res.status(400).json({ 
-                status: 400,
-                success: false,
-                message: "팔로우 저장을 실패하였습니다.", 
-            })
-            return res.status(200).json({
-                status: 200,
-                success: true,
-                message: "팔로우 성공",
-                data: {
-                    follow: {
-                        userTo: follower.userTo,
-                        userFrom: follower.userFrom
+        await Promise.all([
+            User.findOneAndUpdate({ _id: userToId }, { $inc: { followerNumber: 1 } }),
+            User.findOneAndUpdate({ _id: userFromId }, { $inc: { followingNumber: 1 } }),
+            follower.save((err, doc) => {
+                if(err) return res.status(400).json({ 
+                    status: 400,
+                    success: false,
+                    message: "팔로우 저장을 실패하였습니다.", 
+                })
+                return res.status(200).json({
+                    status: 200,
+                    success: true,
+                    message: "팔로우 성공",
+                    data: {
+                        follow: {
+                            userTo: follower.userTo,
+                            userFrom: follower.userFrom
+                        }
                     }
-                }
+                })
             })
-        })
+        ])
     } catch (err) {
         return res.status(500).json({  
             status: 500,

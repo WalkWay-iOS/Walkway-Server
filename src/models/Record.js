@@ -11,6 +11,10 @@ const recordSchema = mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'Course'
     },
+    courseName: {
+        type: String
+    }
+    ,
     distance: {
         type: Number,
         required: true

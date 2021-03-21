@@ -220,12 +220,12 @@ courseRouter.post('/:courseId/record', auth, async (req, res) => {
         const { courseId } = req.params
         const { comment, strength, rate } = req.body
 
-        const userComment = new Comment({ userId: req.user._id, courseId , content: comment })
-        const record = new Record({ ...req.body, comment: userComment, userId: req.user._id, courseId})
-
-        const { strengthAverage, rateAverage, usesCount } = await Course.findById(courseId)
+        const { strengthAverage, rateAverage, usesCount, title } = await Course.findById(courseId)
         const strAve = ((strengthAverage * usesCount) + strength) / (usesCount + 1)
         const rateAve = ((rateAverage * usesCount) + rate) / (usesCount + 1)
+
+        const userComment = new Comment({ userId: req.user._id, courseId , content: comment })
+        const record = new Record({ ...req.body, courseName: title, comment: userComment, userId: req.user._id, courseId})
 
         const course = await Course.findOneAndUpdate(
             { _id: courseId },

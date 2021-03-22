@@ -10,6 +10,10 @@ const commentSchema = mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'Course'
     },
+    userName: {
+        type: String
+    }
+    ,
     content: {
         type: String,
         required: true

@@ -12,6 +12,9 @@ const commentSchema = mongoose.Schema({
     },
     userName: {
         type: String
+    },
+    rate: {
+        type: Number
     }
     ,
     content: {

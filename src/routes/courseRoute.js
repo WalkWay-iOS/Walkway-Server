@@ -53,16 +53,16 @@ courseRouter.post('/create', auth, async (req, res) => {
         let tags = []
         for (let tag of hashtag) {
             console.log(tag)
-            const hash = await Hashtag.findOne({ 'keyword': tag.keyword })
+            const hash = await Hashtag.findOne({ 'keyword': tag })
     
             if(hash !== null) {
                 await Hashtag.updateOne(
-                    { 'keyword': tag.keyword }, 
+                    { 'keyword': tag}, 
                     { $inc: { referCount: 1 } }, { new: true }
                 )
                 tags.push(hash)
             } else {
-                const newHashtag = new Hashtag({ 'keyword': tag.keyword })
+                const newHashtag = new Hashtag({ 'keyword': tag })
                 tags.push(newHashtag)
                 await newHashtag.save()
             }

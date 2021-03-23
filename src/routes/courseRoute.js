@@ -131,8 +131,10 @@ courseRouter.get('/:courseId/detail', async (req, res) => {
     try {
         const { courseId } = req.params;
 
-        const course = await Course.findById(courseId)
-        const comment = await Comment.find({ courseId }).sort({ createdAt: -1 }).limit(3)
+        const [course, comment] = await Promise.all([
+            Course.findById(courseId),
+            Comment.find({ courseId }).sort({ createdAt: -1 })
+        ])
 
         return res.status(200).json({
             status: 200,

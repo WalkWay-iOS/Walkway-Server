@@ -14,7 +14,7 @@ mypageRouter.get('/', auth, async (req, res) => {
         const userId = req.user._id
         const [ follower, courses, records ] = await Promise.all([
             User.findOne({ _id: userId }),
-            Course.find({ 'user._id': userId }),
+            Course.find({ 'user': userId }),
             Record.find({ 'userId': userId }).sort({ createdAt: -1 }).limit(3)
         ])
 

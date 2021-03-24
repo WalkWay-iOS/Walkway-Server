@@ -191,8 +191,8 @@ courseRouter.get('/:courseId/running', async (req, res) => {
         const posMidLong = (posStart[0] + posDestin[0]) / 2
         const posMidLati = (posStart[1] + posDestin[1]) / 2
         for(let place of hotplaces) {
-            if((place.position[0] >= posMidLong - 0.024 && place.position[0] <= posMidLong + 0.024) &&
-                (place.position[1] >= posMidLati - 0.024 && place.position[1] <= posMidLati + 0.024)) {
+            if((place.position[0] >= posMidLong - 0.01 && place.position[0] <= posMidLong + 0.01) &&
+                (place.position[1] >= posMidLati - 0.02 && place.position[1] <= posMidLati + 0.02)) {
                     landmark.push(place.name)
                 }
         }
